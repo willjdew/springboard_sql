@@ -25,12 +25,12 @@ exploring the data, and getting acquainted with the 3 tables. */
 /* Q1: Some of the facilities charge a fee to members, but some do not.
 Please list the names of the facilities that do. */
 SELECT name AS "Facilites with Member Fee"
-FROM Facilites
+FROM Facilities
 WHERE membercost > 0
 
 /* Q2: How many facilities do not charge a fee to members? */
 SELECT COUNT(name) AS "Number of Facilities with No Member Fee"
-FROM Facilites
+FROM Facilities
 WHERE membercost = 0
 
 /* Q3: How can you produce a list of facilities that charge a fee to members,
@@ -61,7 +61,7 @@ FROM Facilities
 who signed up. Do not use the LIMIT clause for your solution. */
 SELECT firstname, surname, joindate
 FROM Members
-ORDER BY joindate DECS
+ORDER BY joindate DESC
 
 /* Q7: How can you produce a list of all members who have used a tennis court?
 Include in your output the name of the court, and the name of the member
@@ -81,13 +81,14 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 SELECT CONCAT(fac.name, ' ', mem.firstname, ' ', mem.surname) AS booking,
-fac.membercost * boo.slots AS costs
+CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots 
+ELSE fac.membercost * boo.slots END AS cost
 FROM Facilities fac
 INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
 WHERE boo.starttime LIKE '2012-09-14%'
-AND fac.membercost * boo.slots > 30
-ORDER BY costs DESC
+AND ((fac.membercost * boo.slots > 30 AND boo.memid != 0) OR (fac.guestcost * boo.slots > 30 AND boo.memid = 0))
+ORDER BY 2 DESC
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
