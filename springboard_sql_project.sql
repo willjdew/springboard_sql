@@ -22,9 +22,6 @@ to your GitHub.
 Before starting with the questions, feel free to take your time,
 exploring the data, and getting acquainted with the 3 tables. */
 
-Facilities = columns[facid, name, membercost, guestcost, initialoutlay,
-			monthlymaintanece]
-
 /* Q1: Some of the facilities charge a fee to members, but some do not.
 Please list the names of the facilities that do. */
 SELECT name AS "Facilites with Member Fee"
@@ -54,19 +51,28 @@ WHERE facid IN (1, 5)
 'cheap' or 'expensive', depending on if their monthly maintenance cost is
 more than $100? Return the name and monthly maintenance of the facilities
 in question. */
-SELECT name AS 'cheap'
+SELECT name, monthlymaintenance,
+CASE WHEN monthlymaintenance > 100 THEN 'expensive'
+WHEN monthlymaintenance <= 100 	THEN 'cheap'
+ELSE NULL END AS rate
 FROM Facilities
-WHERE monthlymaintenance < 100
 
 /* Q6: You'd like to get the first and last name of the last member(s)
 who signed up. Do not use the LIMIT clause for your solution. */
-
+SELECT firstname, surname, joindate
+FROM Members
+ORDER BY joindate DECS
 
 /* Q7: How can you produce a list of all members who have used a tennis court?
 Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
-
+SELECT DISTINCT CONCAT(fac.name, ' ', mem.firstname, ' ', mem.surname) AS tennis_court
+FROM Facilities fac
+INNER JOIN Bookings boo ON fac.facid = boo.facid
+INNER JOIN Members mem ON mem.memid = boo.memid
+WHERE fac.name LIKE '%Tennis Court%'
+ORDER BY mem.surname, fac.name
 
 /* Q8: How can you produce a list of bookings on the day of 2012-09-14 which
 will cost the member (or guest) more than $30? Remember that guests have
@@ -74,7 +80,14 @@ different costs to members (the listed costs are per half-hour 'slot'), and
 the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
-
+SELECT CONCAT(fac.name, ' ', mem.firstname, ' ', mem.surname) AS booking,
+fac.membercost * boo.slots AS costs
+FROM Facilities fac
+INNER JOIN Bookings boo ON fac.facid = boo.facid
+INNER JOIN Members mem ON mem.memid = boo.memid
+WHERE boo.starttime LIKE '2012-09-14%'
+AND fac.membercost * boo.slots > 30
+ORDER BY costs DESC
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
