@@ -24,8 +24,11 @@ exploring the data, and getting acquainted with the 3 tables. */
 
 /* Q1: Some of the facilities charge a fee to members, but some do not.
 Please list the names of the facilities that do. */
+
 SELECT name AS "Facilites with Member Fee"
+
 FROM Facilities
+
 WHERE membercost > 0
 
 "Facilites with Member Fee"
@@ -36,8 +39,11 @@ WHERE membercost > 0
 "Squash Court"
 
 /* Q2: How many facilities do not charge a fee to members? */
+
 SELECT COUNT(name) AS "Number of Facilities with No Member Fee"
+
 FROM Facilities
+
 WHERE membercost = 0
 
 "Number of Facilities with No Member Fee"
@@ -49,7 +55,9 @@ Return the facid, facility name, member cost, and monthly maintenance of the
 facilities in question. */
 
 SELECT facid, name, membercost, monthlymaintenance
+
 FROM Facilities
+
 WHERE (membercost > 0) AND (membercost < (monthlymaintenance * 0.2))
 
 "facid"	"name"		"membercost"	"monthlymaintenance"
@@ -63,7 +71,9 @@ WHERE (membercost > 0) AND (membercost < (monthlymaintenance * 0.2))
 Write the query without using the OR operator. */
 
 SELECT *
+
 FROM Facilities
+
 WHERE facid IN (1, 5)
 
 "facid"	"name"		"membercost"	"guestcost"	"initialoutlay"	"monthlymaintenance"
@@ -76,9 +86,10 @@ more than $100? Return the name and monthly maintenance of the facilities
 in question. */
 
 SELECT name, monthlymaintenance,
-CASE WHEN monthlymaintenance > 100 THEN 'expensive'
-WHEN monthlymaintenance <= 100 	THEN 'cheap'
-ELSE NULL END AS rate
+	CASE WHEN monthlymaintenance > 100 THEN 'expensive'
+	WHEN monthlymaintenance <= 100 	THEN 'cheap'
+	ELSE NULL END AS rate
+
 FROM Facilities
 
 "name"			"monthlymaintenance"	"rate"
@@ -96,7 +107,9 @@ FROM Facilities
 who signed up. Do not use the LIMIT clause for your solution. */
 
 SELECT firstname, surname, joindate
+
 FROM Members
+
 ORDER BY joindate DESC
 
 "firstname"	"surname"	"joindate"
@@ -141,7 +154,9 @@ SELECT DISTINCT fac.name, CONCAT(mem.firstname, ' ', mem.surname) AS full_name
 FROM Facilities fac
 INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
+
 WHERE fac.name LIKE '%Tennis Court%'
+
 ORDER BY mem.surname, fac.name
 
 "name"			"full_name"
@@ -199,14 +214,18 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
-SELECT boo.bookid, fac.name, CONCAT(mem.firstname, ' ', mem.surname) AS booking,
-CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots 
-ELSE fac.membercost * boo.slots END AS cost
+SELECT  boo.bookid, 
+	fac.name, 
+	CONCAT(mem.firstname, ' ', mem.surname) AS Name,
+	CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots ELSE fac.membercost * boo.slots END AS cost
+
 FROM Facilities fac
 INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
+
 WHERE boo.starttime LIKE '2012-09-14%'
-AND ((fac.membercost * boo.slots > 30 AND boo.memid != 0) OR (fac.guestcost * boo.slots > 30 AND boo.memid = 0))
+	CASE WHEN fac.membercost * boo.slots <> 0 THEN fac.membercost * boo.slots ELSE fac.guestcost * boo.slots END > 30
+
 ORDER BY cost DESC
 
 "bookid"	"name"			"booking"	"cost"
@@ -256,18 +275,21 @@ ORDER BY bookings.cost DESC
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
 
-SELECT rev.facid, rev.name, SUM(rev.cost) AS total_revenue
+SELECT *
 FROM (
-SELECT fac.facid, fac.name, 
-CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots 
-ELSE fac.membercost * boo.slots END AS cost
-FROM Facilities fac
-INNER JOIN Bookings boo ON fac.facid = boo.facid
-INNER JOIN Members mem ON mem.memid = boo.memid
+	SELECT fac.name, 
+		SUM(CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots ELSE fac.membercost * boo.slots END AS cost)
+
+	FROM Facilities fac
+	INNER JOIN Bookings boo ON fac.facid = boo.facid
+	INNER JOIN Members mem ON mem.memid = boo.memid
+
+	GROUP BY fac.name
 ) rev
-GROUP BY rev.facid, rev.name
-HAVING total_revenue < 1000
-ORDER BY total_revenue
+
+WHERE rev.cost < 1000
+
+ORDER BY rev.cost
 
 "facid"	"name"		"total_revenue"
 "3"	"Table Tennis"	"180.0"
