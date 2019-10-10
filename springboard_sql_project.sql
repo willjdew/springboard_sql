@@ -54,7 +54,10 @@ where the fee is less than 20% of the facility's monthly maintenance cost?
 Return the facid, facility name, member cost, and monthly maintenance of the
 facilities in question. */
 
-SELECT facid, name, membercost, monthlymaintenance
+SELECT facid, 
+	name, 
+	membercost, 
+	monthlymaintenance
 
 FROM Facilities
 
@@ -86,9 +89,11 @@ more than $100? Return the name and monthly maintenance of the facilities
 in question. */
 
 SELECT name, monthlymaintenance,
-	CASE WHEN monthlymaintenance > 100 THEN 'expensive'
-	WHEN monthlymaintenance <= 100 	THEN 'cheap'
-	ELSE NULL END AS rate
+	CASE 
+		WHEN monthlymaintenance > 100 THEN 'expensive'
+		WHEN monthlymaintenance <= 100 	THEN 'cheap'
+		ELSE NULL 
+	END AS rate
 
 FROM Facilities
 
@@ -106,10 +111,10 @@ FROM Facilities
 /* Q6: You'd like to get the first and last name of the last member(s)
 who signed up. Do not use the LIMIT clause for your solution. */
 
-SELECT firstname, surname, joindate
-
+SELECT firstname, 
+	surname, 
+	joindate
 FROM Members
-
 ORDER BY joindate DESC
 
 "firstname"	"surname"	"joindate"
@@ -156,7 +161,6 @@ INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
 
 WHERE fac.name LIKE '%Tennis Court%'
-
 ORDER BY mem.surname, fac.name
 
 "name"			"full_name"
@@ -224,7 +228,9 @@ INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
 
 WHERE boo.starttime LIKE '2012-09-14%'
-	CASE WHEN fac.membercost * boo.slots <> 0 THEN fac.membercost * boo.slots ELSE fac.guestcost * boo.slots END > 30
+	AND CASE 
+		WHEN fac.membercost * boo.slots <> 0 THEN fac.membercost * boo.slots ELSE fac.guestcost * boo.slots 
+	END > 30
 
 ORDER BY cost DESC
 
@@ -246,13 +252,17 @@ ORDER BY cost DESC
 
 SELECT bookings.*
 FROM (
-SELECT boo.bookid, fac.name, CONCAT(mem.firstname, ' ', mem.surname) AS booking,
-CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots 
-ELSE fac.membercost * boo.slots END AS cost
-FROM Facilities fac
-INNER JOIN Bookings boo ON fac.facid = boo.facid
-INNER JOIN Members mem ON mem.memid = boo.memid
-WHERE boo.starttime LIKE '2012-09-14%'
+    SELECT boo.bookid, 
+	   fac.name, 
+	   CONCAT(mem.firstname, ' ', mem.surname) AS booking,
+           CASE 
+	       WHEN boo.memid = 0 THEN fac.guestcost * boo.slots 
+	       ELSE fac.membercost * boo.slots 
+	   END AS cost
+    FROM Facilities fac
+    INNER JOIN Bookings boo ON fac.facid = boo.facid
+    INNER JOIN Members mem ON mem.memid = boo.memid
+    WHERE boo.starttime LIKE '2012-09-14%'
 ) bookings
 WHERE bookings.cost > 30
 ORDER BY bookings.cost DESC
@@ -278,7 +288,7 @@ that there's a different cost for guests and members! */
 SELECT *
 FROM (
 	SELECT fac.name, 
-		SUM(CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots ELSE fac.membercost * boo.slots END AS cost)
+		SUM(CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots ELSE fac.membercost * boo.slots END) AS cost
 
 	FROM Facilities fac
 	INNER JOIN Bookings boo ON fac.facid = boo.facid
@@ -286,9 +296,7 @@ FROM (
 
 	GROUP BY fac.name
 ) rev
-
-WHERE rev.cost < 1000
-
+ WHERE rev.cost < 1000
 ORDER BY rev.cost
 
 "facid"	"name"		"total_revenue"
@@ -296,3 +304,4 @@ ORDER BY rev.cost
 "7"	"Snooker Table"	"240.0"
 "8"	"Pool Table"	"270.0"
 
+SEARCH FOR BEST PRACTICES IN SQL
