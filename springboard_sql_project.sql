@@ -51,18 +51,18 @@ Return the facid, facility name, member cost, and monthly maintenance of the
 facilities in question. */
 
 SELECT 	facid,
-				name,
-				membercost,
-				monthlymaintenance
+	name,
+	membercost,
+	monthlymaintenance
 FROM Facilities
 WHERE (membercost > 0) AND (membercost < (monthlymaintenance * 0.2))
 
-"facid"	"name"						"membercost"	"monthlymaintenance"
-"0"			"Tennis Court 1"	"5.0"					"200"
-"1"			"Tennis Court 2"	"5.0"					"200"
-"4"			"Massage Room 1"	"9.9"					"3000"
-"5"			"Massage Room 2"	"9.9"					"3000"
-"6"			"Squash Court"		"3.5"					"80"
+"facid"		"name"			"membercost"	"monthlymaintenance"
+"0"		"Tennis Court 1"	"5.0"		"200"
+"1"		"Tennis Court 2"	"5.0"		"200"
+"4"		"Massage Room 1"	"9.9"		"3000"
+"5"		"Massage Room 2"	"9.9"		"3000"
+"6"		"Squash Court"		"3.5"		"80"
 
 /* Q4: How can you retrieve the details of facilities with ID 1 and 5?
 Write the query without using the OR operator. */
@@ -71,9 +71,9 @@ SELECT *
 FROM Facilities
 WHERE facid IN (1, 5)
 
-"facid"	"name"						"membercost"		"guestcost"	"initialoutlay"	"monthlymaintenance"
-"1"			"Tennis Court 2"	"5.0"						"25.0"			"8000"					"200"
-"5"			"Massage Room 2"	"9.9"						"80.0"			"4000"					"3000"
+"facid"	"name"			"membercost"		"guestcost"	"initialoutlay"	"monthlymaintenance"
+"1"	"Tennis Court 2"	"5.0"			"25.0"		"8000"		"200"
+"5"	"Massage Room 2"	"9.9"			"80.0"		"4000"		"3000"
 
 /* Q5: How can you produce a list of facilities, with each labelled as
 'cheap' or 'expensive', depending on if their monthly maintenance cost is
@@ -81,31 +81,31 @@ more than $100? Return the name and monthly maintenance of the facilities
 in question. */
 
 SELECT 	name,
-				monthlymaintenance,
-				CASE
-					WHEN monthlymaintenance > 100 THEN 'expensive'
-					WHEN monthlymaintenance <= 100 	THEN 'cheap'
-					ELSE NULL
-				END AS rate
+	monthlymaintenance,
+	CASE
+	    WHEN monthlymaintenance > 100 THEN 'expensive'
+	    WHEN monthlymaintenance <= 100 	THEN 'cheap'
+	    ELSE NULL
+	END AS rate
 FROM Facilities
 
-"name"						"monthlymaintenance"	"rate"
-"Tennis Court 1"	"200"									"expensive"
-"Tennis Court 2"	"200"									"expensive"
-"Badminton Court"	"50"									"cheap"
-"Table Tennis"		"10"									"cheap"
-"Massage Room 1"	"3000"								"expensive"
-"Massage Room 2"	"3000"								"expensive"
-"Squash Court"		"80"									"cheap"
-"Snooker Table"		"15"									"cheap"
-"Pool Table"			"15"									"cheap"
+"name"			"monthlymaintenance"	"rate"
+"Tennis Court 1"	"200"			"expensive"
+"Tennis Court 2"	"200"			"expensive"
+"Badminton Court"	"50"			"cheap"
+"Table Tennis"		"10"			"cheap"
+"Massage Room 1"	"3000"			"expensive"
+"Massage Room 2"	"3000"			"expensive"
+"Squash Court"		"80"			"cheap"
+"Snooker Table"		"15"			"cheap"
+"Pool Table"		"15"			"cheap"
 
 /* Q6: You'd like to get the first and last name of the last member(s)
 who signed up. Do not use the LIMIT clause for your solution. */
 
 SELECT 	firstname,
-				surname,
-				joindate
+	surname,
+	joindate
 FROM Members
 ORDER BY joindate DESC
 
@@ -148,14 +148,14 @@ formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
 SELECT 	DISTINCT fac.name,
-				CONCAT(mem.firstname, ' ', mem.surname) AS full_name
+	CONCAT(mem.firstname, ' ', mem.surname) AS full_name
 FROM Facilities fac
 INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
 WHERE fac.name LIKE '%Tennis Court%'
 ORDER BY mem.surname, fac.name
 
-"name"						"full_name"
+"name"			"full_name"
 "Tennis Court 1"	"Florence Bader"
 "Tennis Court 2"	"Florence Bader"
 "Tennis Court 1"	"Anne Baker"
@@ -211,23 +211,23 @@ facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
 SELECT  boo.bookid,
-				fac.name,
-				CONCAT(mem.firstname, ' ', mem.surname) AS Name,
-				CASE
-					WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
-					ELSE fac.membercost * boo.slots
-				END AS cost
+	fac.name,
+	CONCAT(mem.firstname, ' ', mem.surname) AS Name,
+	CASE
+	    WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
+	    ELSE fac.membercost * boo.slots
+	END AS cost
 FROM Facilities fac
 INNER JOIN Bookings boo ON fac.facid = boo.facid
 INNER JOIN Members mem ON mem.memid = boo.memid
 WHERE boo.starttime LIKE '2012-09-14%'
-	AND CASE
-		WHEN fac.membercost * boo.slots <> 0 THEN fac.membercost * boo.slots
-		ELSE fac.guestcost * boo.slots
-	END > 30
+AND CASE
+    WHEN fac.membercost * boo.slots <> 0 THEN fac.membercost * boo.slots
+    ELSE fac.guestcost * boo.slots
+END > 30
 ORDER BY cost DESC
 
-"bookid"	"name"						"booking"			"cost"
+"bookid"	"name"			"booking"	"cost"
 "2946"		"Massage Room 2"	"GUEST GUEST"	"320.0"
 "2940"		"Massage Room 1"	"GUEST GUEST"	"160.0"
 "2942"		"Massage Room 1"	"GUEST GUEST"	"160.0"
@@ -245,13 +245,13 @@ ORDER BY cost DESC
 
 SELECT bookings.*
 FROM (
-    SELECT 	boo.bookid,
-	   				fac.name,
-	   				CONCAT(mem.firstname, ' ', mem.surname) AS booking,
-    				CASE
-	       			WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
-	       			ELSE fac.membercost * boo.slots
-	   				END AS cost
+    SELECT boo.bookid,
+	   fac.name,
+	   CONCAT(mem.firstname, ' ', mem.surname) AS booking,
+    	   CASE
+	       WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
+	       ELSE fac.membercost * boo.slots
+	   END AS cost
     FROM Facilities fac
     INNER JOIN Bookings boo ON fac.facid = boo.facid
     INNER JOIN Members mem ON mem.memid = boo.memid
@@ -260,7 +260,7 @@ FROM (
 WHERE bookings.cost > 30
 ORDER BY bookings.cost DESC
 
-"bookid"	"name"						"booking"			"cost"
+"bookid"	"name"			"booking"	"cost"
 "2946"		"Massage Room 2"	"GUEST GUEST"	"320.0"
 "2940"		"Massage Room 1"	"GUEST GUEST"	"160.0"
 "2942"		"Massage Room 1"	"GUEST GUEST"	"160.0"
@@ -281,9 +281,10 @@ that there's a different cost for guests and members! */
 SELECT *
 FROM (
 	SELECT 	fac.name,
-					SUM(CASE WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
-							ELSE fac.membercost * boo.slots
-							END) AS cost
+	        SUM(CASE 
+			WHEN boo.memid = 0 THEN fac.guestcost * boo.slots
+			ELSE fac.membercost * boo.slots
+		END) AS cost
 	FROM Facilities fac
 	INNER JOIN Bookings boo ON fac.facid = boo.facid
 	INNER JOIN Members mem ON mem.memid = boo.memid
